@@ -3,6 +3,8 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
 import Navbar from "@/components/Navbar";
+import { AppWrapper } from "@/Context";
+import { Box } from "@chakra-ui/react";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -20,9 +22,12 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <Providers>
-          <Navbar/>
-          {children}
-          </Providers>
+          <AppWrapper>
+            <Navbar />
+            <Box h={"8vh"}></Box>
+            {children}
+          </AppWrapper>
+        </Providers>
       </body>
     </html>
   );
