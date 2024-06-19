@@ -2,6 +2,7 @@
 "use client"
 import { useAppContext } from "../Context";
 import { Box, Button, HStack, Heading, Text } from "@chakra-ui/react";
+import Link from "next/link";
 import { FaBitcoin, FaUser } from "react-icons/fa";
 
 export default function Navbar() {
@@ -19,9 +20,12 @@ export default function Navbar() {
       >
         <Box p={2}>
           <HStack justifyContent={"space-around"}>
+            <Link href={"/"}>
             <Box>
+
               <Heading className="title" bg={"transparent"}>Stake</Heading>
             </Box>
+            </Link>
             <Box bg={"black"} borderRadius={4}>
               <HStack>
                 <HStack p={2}>

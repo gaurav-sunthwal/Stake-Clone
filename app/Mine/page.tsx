@@ -16,54 +16,62 @@ import Image from "next/image";
 import { useRef, useState } from "react";
 import diamond from "/Other/Img/diamond.png";
 import bomb from "/Other/Img/bomb.png";
-import src from "/Other/sound/got.mp3"; // Importing the audio file
 
 export default function Mine() {
   const { userAccountBalance, setUserAccountBalance } = useAppContext(); // Accessing context for user account balance
 
   // Arrays representing the mine and coin items
-  let mineOptions = [
-    2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22,
-    23, 24,
-  ];
-  let coin = [
-    1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21,
-    22, 23, 24, 25,
-  ];
+  const mineOptions = Array.from({ length: 24 }, (_, i) => i + 2);
+  const coin = Array.from({ length: 25 }, (_, i) => i + 1);
 
   const audioRef = useRef(null); // Ref for audio element
   const [isPlaying, setIsPlaying] = useState(false); // State to manage audio playback
 
   // State variables to manage the game logic
   const [clickItem, setCLickedItem] = useState([]);
-  const [mines, setMines] = useState([]); // Changed from mineNumber to mines
+  const [mines, setMines] = useState([]);
   const [lose, setLose] = useState(false);
-  const [betAmount, setBatAmount] = useState(1);
+  const [betAmount, setBetAmount] = useState(1);
   const [selectedMine, setSelectedMine] = useState(1);
-
+  const [rewards, setRewards] = useState(0);
+  const [startBet, setStartBet] = useState(false);
+  if (lose === true) {
+    setInterval(() => {
+      setLose(false);
+    }, 5000);
+  }
   // Function to check if the clicked item is a mine
   function mineChecker(itemNumber) {
     setIsPlaying(true); // Play the audio
+    lose != true ? setRewards(rewards + rewards) : setRewards(0);
     if (!clickItem.includes(itemNumber)) {
       setCLickedItem((clickItem) => [...clickItem, itemNumber]);
 
       if (mines.includes(itemNumber)) {
-        setLose(true); // Player loses if the clicked item is a mine
+        setLose(true);
+        setRewards(0); // Reset rewards to 0 if the player loses
       }
     }
   }
 
   // Function to handle the bet action
-  function handalBet() {
+  function handleBet() {
     setCLickedItem([]); // Reset clicked items
     setLose(false); // Reset lose state
-    if (userAccountBalance > 0) {
-      setUserAccountBalance(userAccountBalance - betAmount); // Deduct bet amount from user balance
-    } else {
+    setMines([]); // Reset mines state
+
+    if (userAccountBalance < betAmount) {
       alert("Low bet amount!!"); // Alert if bet amount is too low
+      setStartBet(false);
+      return;
     }
+
+    setUserAccountBalance(userAccountBalance - betAmount); // Deduct bet amount from user balance
+    setRewards((selectedMine / 100) * betAmount);
+    setStartBet(true);
+
     // Generate the selected number of unique mines
-    let newMines = [];
+    const newMines = [];
     while (newMines.length < selectedMine) {
       const randomMineNumber = Math.floor(Math.random() * coin.length) + 1;
       if (!newMines.includes(randomMineNumber)) {
@@ -71,7 +79,14 @@ export default function Mine() {
       }
     }
     setMines(newMines); // Set the mines state with the new mines
-    console.log(newMines);
+  }
+
+  // Function to handle cashing out rewards
+  function handleRewards() {
+    setUserAccountBalance(userAccountBalance + rewards);
+    setCLickedItem([]);
+    setMines([]);
+    setStartBet(false);
   }
 
   return (
@@ -81,33 +96,33 @@ export default function Mine() {
           <VStack h={"88vh"} w={"100%"}>
             <HStack w={"100%"}>
               <Box w={"30%"} h={"88vh"} bg={"#2F4553"} p={3}>
-                <Tite text={"Bet Amount"} />
+                <Title text={"Bet Amount"} />
                 <HStack>
                   <Input
                     type="number"
                     w={"70%"}
                     value={betAmount}
                     onChange={(e) => {
-                      setBatAmount(e.target.value);
+                      setBetAmount(Number(e.target.value));
                     }}
                   />
                   <HStack w={"40%"}>
                     <AddMoney
                       text={"1/2"}
                       work={() => {
-                        setBatAmount(betAmount / 2);
+                        setBetAmount(betAmount / 2);
                       }}
                     />
                     <AddMoney
                       text={"2"}
                       work={() => {
-                        setBatAmount(betAmount * 2);
+                        setBetAmount(betAmount * 2);
                       }}
                     />
                   </HStack>
                 </HStack>
                 <Box mt={2}>
-                  <Tite text={"Mine"} />
+                  <Title text={"Mine"} />
                   <Select
                     value={selectedMine}
                     onChange={(e) => setSelectedMine(Number(e.target.value))}
@@ -125,11 +140,21 @@ export default function Mine() {
                     w={"100%"}
                     p={7}
                     colorScheme="yellow"
-                    onClick={handalBet}
-                    disabled
+                    onClick={handleBet}
                   >
                     BET
                   </Button>
+                  {startBet && (
+                    <Button
+                      mt={2}
+                      w={"100%"}
+                      p={7}
+                      bg={"#557086"}
+                      onClick={handleRewards}
+                    >
+                      Cash Out : {rewards}
+                    </Button>
+                  )}
                 </Box>
               </Box>
               <VStack w={"100%"} h={"80vh"} p={3}>
@@ -153,10 +178,10 @@ export default function Mine() {
                         borderRadius={7}
                         onClick={() => mineChecker(item)}
                       >
-                        {clickItem.includes(item) || lose ? ( // Show item if clicked or player lost
-                          <>
+                        {clickItem.includes(item) || lose ? (
+                          <Box textAlign={"center"}>
                             {mines.includes(item) ? (
-                              <Box textAlign={"center"}>
+                              <>
                                 <Image src={bomb} alt="bomb" />
                                 <audio autoPlay>
                                   <source
@@ -168,9 +193,9 @@ export default function Mine() {
                                   Your browser does not support the audio
                                   element.
                                 </audio>
-                              </Box>
-                            ) : lose === false ? (
-                              <Box textAlign={"center"}>
+                              </>
+                            ) : (
+                              <>
                                 <Image src={diamond} alt="diamond" />
                                 <audio autoPlay>
                                   <source
@@ -182,11 +207,9 @@ export default function Mine() {
                                   Your browser does not support the audio
                                   element.
                                 </audio>
-                              </Box>
-                            ) : (
-                              <></>
+                              </>
                             )}
-                          </>
+                          </Box>
                         ) : null}
                       </Box>
                     </motion.button>
@@ -207,6 +230,6 @@ function AddMoney({ text, work }) {
 }
 
 // Component for displaying titles
-function Tite({ text }) {
+function Title({ text }) {
   return <Text color={"#B1BAD3"}>{text}</Text>;
 }

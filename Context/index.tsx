@@ -6,7 +6,7 @@ const AppContext = createContext<any>(undefined);
 
 export function AppWrapper({ children }: { children: React.ReactNode }) {
     let [userName, setUserName] = useState("gaurav-sunthwal");
-    let [userAccountBalance, setUserAccountBalance] = useState(4000.0000);
+    let [userAccountBalance, setUserAccountBalance] = useState(500.0000);
   return (
     <AppContext.Provider
       value={{
