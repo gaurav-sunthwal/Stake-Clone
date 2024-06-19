@@ -43,8 +43,10 @@ export default function Mine() {
   // Function to check if the clicked item is a mine
   function mineChecker(itemNumber) {
     setIsPlaying(true); // Play the audio
-    lose != true ? setRewards(rewards + rewards) : setRewards(0);
     if (!clickItem.includes(itemNumber)) {
+      lose != true
+        ? setRewards(rewards + (selectedMine / 100) * betAmount)
+        : setRewards(0);
       setCLickedItem((clickItem) => [...clickItem, itemNumber]);
 
       if (mines.includes(itemNumber)) {
@@ -79,11 +81,14 @@ export default function Mine() {
       }
     }
     setMines(newMines); // Set the mines state with the new mines
+    console.log(mines);
   }
 
   // Function to handle cashing out rewards
   function handleRewards() {
-    setUserAccountBalance(userAccountBalance + rewards);
+    clickItem.length != 0
+      ? setUserAccountBalance(userAccountBalance + (betAmount + rewards))
+      : setUserAccountBalance(userAccountBalance+betAmount);
     setCLickedItem([]);
     setMines([]);
     setStartBet(false);
