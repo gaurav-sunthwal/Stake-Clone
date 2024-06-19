@@ -6,7 +6,6 @@ import {
   Box,
   Button,
   HStack,
-  Heading,
   Input,
   Select,
   Text,
@@ -14,7 +13,7 @@ import {
 } from "@chakra-ui/react";
 import { motion } from "framer-motion";
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import diamond from "/Other/Img/diamond.png";
 import bomb from "/Other/Img/bomb.png";
 import src from "/Other/sound/got.mp3"; // Importing the audio file
@@ -23,7 +22,7 @@ export default function Mine() {
   const { userAccountBalance, setUserAccountBalance } = useAppContext(); // Accessing context for user account balance
 
   // Arrays representing the mine and coin items
-  let mine = [
+  let mineOptions = [
     2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22,
     23, 24,
   ];
@@ -37,7 +36,7 @@ export default function Mine() {
 
   // State variables to manage the game logic
   const [clickItem, setCLickedItem] = useState([]);
-  const [mineNumber, setMineNumber] = useState(null);
+  const [mines, setMines] = useState([]); // Changed from mineNumber to mines
   const [lose, setLose] = useState(false);
   const [betAmount, setBatAmount] = useState(1);
   const [selectedMine, setSelectedMine] = useState(1);
@@ -48,7 +47,7 @@ export default function Mine() {
     if (!clickItem.includes(itemNumber)) {
       setCLickedItem((clickItem) => [...clickItem, itemNumber]);
 
-      if (mineNumber === itemNumber) {
+      if (mines.includes(itemNumber)) {
         setLose(true); // Player loses if the clicked item is a mine
       }
     }
@@ -63,9 +62,16 @@ export default function Mine() {
     } else {
       alert("Low bet amount!!"); // Alert if bet amount is too low
     }
-    const randomMineNumber = Math.floor(Math.random() * coin.length) + 1; // Randomly select a mine
-    setMineNumber(randomMineNumber);
-    console.log(randomMineNumber);
+    // Generate the selected number of unique mines
+    let newMines = [];
+    while (newMines.length < selectedMine) {
+      const randomMineNumber = Math.floor(Math.random() * coin.length) + 1;
+      if (!newMines.includes(randomMineNumber)) {
+        newMines.push(randomMineNumber);
+      }
+    }
+    setMines(newMines); // Set the mines state with the new mines
+    console.log(newMines);
   }
 
   return (
@@ -107,7 +113,7 @@ export default function Mine() {
                     onChange={(e) => setSelectedMine(Number(e.target.value))}
                   >
                     <option value="1">1</option>
-                    {mine.map((item) => (
+                    {mineOptions.map((item) => (
                       <option key={item} value={item}>
                         {item}
                       </option>
@@ -120,6 +126,7 @@ export default function Mine() {
                     p={7}
                     colorScheme="yellow"
                     onClick={handalBet}
+                    disabled
                   >
                     BET
                   </Button>
@@ -146,9 +153,9 @@ export default function Mine() {
                         borderRadius={7}
                         onClick={() => mineChecker(item)}
                       >
-                        {clickItem.includes(item) ? (
+                        {clickItem.includes(item) || lose ? ( // Show item if clicked or player lost
                           <>
-                            {mineNumber === item ? (
+                            {mines.includes(item) ? (
                               <Box textAlign={"center"}>
                                 <Image src={bomb} alt="bomb" />
                                 <audio autoPlay>
