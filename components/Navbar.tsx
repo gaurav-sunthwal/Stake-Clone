@@ -20,7 +20,7 @@ export default function Navbar() {
         <Box p={2}>
           <HStack justifyContent={"space-around"}>
             <Box>
-              <Heading className="title">Stake</Heading>
+              <Heading className="title" bg={"transparent"}>Stake</Heading>
             </Box>
             <Box bg={"black"} borderRadius={4}>
               <HStack>
