@@ -10,6 +10,7 @@ import {
   Select,
   Text,
   VStack,
+  useMediaQuery,
 } from "@chakra-ui/react";
 import { motion } from "framer-motion";
 import Image from "next/image";
@@ -94,13 +95,15 @@ export default function Mine() {
     setStartBet(false);
   }
 
+  const [isLargerThan] = useMediaQuery('(min-width: 900px)')
+
   return (
     <>
       <Box p={2}>
-        <HStack w={"100%"} bg={"#171717"}>
-          <VStack h={"88vh"} w={"100%"}>
-            <HStack w={"100%"}>
-              <Box w={"30%"} h={"88vh"} bg={"#2F4553"} p={3}>
+        <HStack w={"100%"} bg={"#171717"} wrap={isLargerThan ? "nowrap" : "wrap-reverse"}>
+          <VStack h={isLargerThan ? "88vh" : "auto"} w={"100%"} >
+            <HStack w={"100%"} wrap={isLargerThan ? "nowrap" : "wrap-reverse"}>
+              <Box w={isLargerThan ? "30%" : "100%"} h={isLargerThan ? "88vh" : "auto"} bg={"#2F4553"} p={3}>
                 <Title text={"Bet Amount"} />
                 <HStack>
                   <Input
@@ -111,7 +114,7 @@ export default function Mine() {
                       setBetAmount(Number(e.target.value));
                     }}
                   />
-                  <HStack w={"40%"}>
+                  <HStack w={isLargerThan ? "30%" : "100%"}>
                     <AddMoney
                       text={"1/2"}
                       work={() => {
@@ -162,8 +165,13 @@ export default function Mine() {
                   )}
                 </Box>
               </Box>
-              <VStack w={"100%"} h={"80vh"} p={3}>
-                <HStack wrap={"wrap"} justifyContent={"center"} w={"700px"}>
+
+
+
+
+
+              <VStack w={"100%"} h={isLargerThan ? "80vh" : "auto"} p={3}>
+                <HStack wrap={"wrap"} justifyContent={"center"} w={isLargerThan ? "700px" : "100%"}>
                   {coin.map((item) => (
                     <motion.button
                       whileHover={{ scale: 1.1 }}
@@ -177,8 +185,8 @@ export default function Mine() {
                         m={1}
                         cursor={"pointer"}
                         className={`box-${item}`}
-                        w={"110px"}
-                        h={"110px"}
+                        w={isLargerThan ? "110px" : "70px"}
+                        h={isLargerThan ? "110px" : "70px"}
                         bg={"#2F4553"}
                         borderRadius={7}
                         onClick={() => mineChecker(item)}
